@@ -1,0 +1,19 @@
+.stack-work/
+*~#
+# Haskell files
+#
+**/dist/*
+**/dist-newstyle/*
+**/.ghc.environment.*
+**/cabal.project.local
+**/.stack-work*
+**/.tcachedata/*
+
+#
+# Editor files
+#
+*~
+.idea
+.vscode
+\#*
+\.\#*
