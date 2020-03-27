@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Ex.Lens
       Lib
   other-modules:
       Paths_optics_exercises
@@ -65,7 +66,6 @@ test-suite optics-exercises-test
   main-is: Spec.hs
   other-modules:
       Paths_optics_exercises
-      Test.Lens
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N

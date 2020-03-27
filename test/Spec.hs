@@ -1,4 +1,7 @@
-import Test.Lens
+module Main where
+
+import Ex.Lens (lensTests)
 
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+  lensTests
