@@ -16,6 +16,7 @@ import Data.Char
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Text as T
+import qualified Ex.Util as U
 
 data Ship = Ship {
     _name :: String
@@ -74,6 +75,18 @@ msg = lens getMsg setMsg
     -- Nowhere to set it, I guess we do nothing?
     setMsg (ExitCode n) newMessage = ExitCode n
 
+
+-- - - - lens laws - - - --
+setGet' :: Lens' s a -> s -> a -> a
+setGet' myLens s a = view myLens (set myLens a s)
+
+setGetIsEq' :: Eq a => Lens' s a -> s -> a -> Bool
+setGetIsEq' myLens s a = a == setGet' myLens s a
+
+setGetShow' :: (Eq a, Show a, Show s) => Lens' s a -> s -> a -> String
+setGetShow' myLens s a = "set-get for " <> show a <> " in " <> show s <> ": "
+  <> U.showEq a (setGet' myLens s a)
+
 ---
 -- break 2nd and third law:
 addCrewLens :: Lens' Ship Int
@@ -90,10 +103,10 @@ lensTests = do
   let newSession = session{_userId="5678"}
   putStrLn $ show $ view alongsideUserId $
     (set alongsideUserId (newSession, "9999") session)
-  putStrLn "The next two should break law get-set by =/=:"
+  putStrLn $ "The next two should break law get-set by" <> U.neq
   putStrLn $ show $ set addCrewLens (view addCrewLens purplePearl) purplePearl
   putStrLn $ show $ purplePearl
-  putStrLn "The next two should break law set-set by =/=:"
+  putStrLn $ "The next two should break law set-set by" <> U.neq
   putStrLn $ show $ set addCrewLens 100 (set addCrewLens 1 purplePearl)
   putStrLn $ show $ set addCrewLens 100 purplePearl
 

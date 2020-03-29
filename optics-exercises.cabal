@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Ex.Lens
+      Ex.Util
       Lib
   other-modules:
       Paths_optics_exercises
