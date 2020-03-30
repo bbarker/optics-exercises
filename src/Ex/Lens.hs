@@ -16,12 +16,12 @@ import Data.Char
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Text as T
-import qualified Ex.Util as U
+import Ex.Laws.Lens
 
 data Ship = Ship {
     _name :: String
   , _numCrew :: Int
-} deriving (Show)
+} deriving (Eq, Show)
 
 {-
 numCrew :: Lens' Ship Int
@@ -76,17 +76,6 @@ msg = lens getMsg setMsg
     setMsg (ExitCode n) newMessage = ExitCode n
 
 
--- - - - lens laws - - - --
-setGet' :: Lens' s a -> s -> a -> a
-setGet' myLens s a = view myLens (set myLens a s)
-
-setGetIsEq' :: Eq a => Lens' s a -> s -> a -> Bool
-setGetIsEq' myLens s a = a == setGet' myLens s a
-
-setGetShow' :: (Eq a, Show a, Show s) => Lens' s a -> s -> a -> String
-setGetShow' myLens s a = "set-get for " <> show a <> " in " <> show s <> ": "
-  <> U.showEq a (setGet' myLens s a)
-
 ---
 -- break 2nd and third law:
 addCrewLens :: Lens' Ship Int
@@ -103,12 +92,12 @@ lensTests = do
   let newSession = session{_userId="5678"}
   putStrLn $ show $ view alongsideUserId $
     (set alongsideUserId (newSession, "9999") session)
-  putStrLn $ "The next two should break law get-set by" <> U.neq
-  putStrLn $ show $ set addCrewLens (view addCrewLens purplePearl) purplePearl
-  putStrLn $ show $ purplePearl
-  putStrLn $ "The next two should break law set-set by" <> U.neq
-  putStrLn $ show $ set addCrewLens 100 (set addCrewLens 1 purplePearl)
-  putStrLn $ show $ set addCrewLens 100 purplePearl
+  putStrLn $ "Should break law get-set:"
+  putStrLn $ getSetShow' addCrewLens purplePearl
+  putStrLn $ "Should break law set-set:"
+  putStrLn $ setSetShow' addCrewLens purplePearl 1 100
+  -- putStrLn $ show $ set addCrewLens 100 (set addCrewLens 1 purplePearl)
+  --putStrLn $ show $ set addCrewLens 100 purplePearl
 
 
 conditional :: Lens' (Bool, a, a) a
