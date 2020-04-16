@@ -34,7 +34,7 @@ have a constructor with a `String` parameter, for:
 
 ```haskell
 data Err =
-ReallyBadError { _msg :: String }
+  ReallyBadError { _msg :: String }
 | ExitCode { _code :: Int }
 ```
 
