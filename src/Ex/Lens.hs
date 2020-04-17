@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE InstanceSigs        #-}
+{-# LANGUAGE LambdaCase          #-}
 
 module Ex.Lens where
 
@@ -100,7 +101,17 @@ instance Show Builder where
 -- This fails get-set: ["one ","two"] =/= ["one two"]
 -- (due to not being able to reconstruct the original structure)
 badBuilder :: Lens' Builder String
-badBuilder = lens (\b -> (_build b) $ (_context b)) (\b s -> b{_context = [s]})
+badBuilder = lens (\case Builder c f -> f c) (\b s -> b{_context = [s]})
+
+tailBuilder :: Lens' Builder String
+tailBuilder = lens (\b -> last (_context b)) (\b s -> b{_context = [s]})
+
+builder :: Lens' Builder String
+builder = lens getter setter
+  where
+    getter (Builder c f) = f c
+    setter (Builder c f) newVal = Builder c $ \c' ->
+      if c' == c then newVal else f c'
 
 lensTests :: IO ()
 lensTests = do
@@ -120,6 +131,7 @@ lensTests = do
   let builderTwoStr = Builder {_context = ["one ", "two"], _build = fold}
   putStrLn $ "_build . _context == " <>
     ((_build builderTwoStr) $ (_context builderTwoStr))
-  putStrLn $ setGetShow' badBuilder builderTwoStr "three"
-  putStrLn $ getSetShow' badBuilder builderTwoStr
-  putStrLn $ setSetShow' badBuilder builderTwoStr "three" "four"
+  putStrLn $ lensLawsShow' badBuilder builderTwoStr "three" "four"
+  putStrLn $ lensLawsShow' tailBuilder builderTwoStr "three" "four"
+  putStrLn $ lensLawsShow' builder builderTwoStr "three" "four"
+

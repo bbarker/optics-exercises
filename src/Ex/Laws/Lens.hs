@@ -30,7 +30,7 @@ setGetShow' myLens s a = "set-get for " <> show a <> " in " <> show s <> ": "
   <> U.showEq a (setGet' myLens s a)
 
 getSet' :: Lens' s a -> s -> s
-getSet' myLens s =  set myLens (view myLens s) s
+getSet' myLens s = set myLens (view myLens s) s
 
 getSetIsEq' :: Eq s => Lens' s a -> s -> Bool
 getSetIsEq' myLens s = s == getSet' myLens s
@@ -54,3 +54,9 @@ setSetShow' myLens s a a' = "set-set for " <> show a <> ", " <> show a'
   <> " in " <> show s <> ": "
   <> U.showEq (fst ss') (snd ss')
   where ss' = setSet' myLens s a a'
+
+lensLawsShow' :: (Eq a, Eq s, Show a, Show s) => Lens' s a -> s -> a -> a -> String
+lensLawsShow' myLens s a a' =
+  setGetShow' myLens s a <> "\n" <>
+  getSetShow' myLens s <> "\n" <>
+  setSetShow' myLens s a a'
