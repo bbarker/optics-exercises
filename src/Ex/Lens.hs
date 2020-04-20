@@ -15,6 +15,7 @@ import Control.Lens.Unsound (lensProduct)
 import Control.Applicative
 import Data.Char
 import Data.Foldable (fold)
+import Data.List (elemIndex)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Text as T
@@ -113,6 +114,50 @@ builder = lens getter setter
     setter (Builder c f) newVal = Builder c $ \c' ->
       if c' == c then newVal else f c'
 
+data User = User {
+  _firstName :: String
+, _lastName :: String
+-- , _uName :: String
+, _email :: String
+} deriving (Eq, Show)
+
+makeLenses ''User
+
+uName :: Lens' User String
+-- uName = lens _email (\u e -> set email e u)
+-- Better:
+uName = email
+
+greetUser :: User -> String
+greetUser u =  "Hello " <> view uName u
+
+fullName :: Lens' User String
+fullName = lens getter setter
+  where
+    getter u = view firstName u <> " " <> view lastName u
+    setter :: User -> String -> User
+    setter u fullN = set lastName lastN $ set firstName firstN u
+      where
+        spIxMay = elemIndex ' ' fullN
+        firstN = case spIxMay of
+          Just ix -> fst $ splitAt ix fullN
+          Nothing -> fullN
+        lastN = case spIxMay of
+          Just ix -> dropWhile (== ' ') $ snd $ splitAt ix fullN
+          Nothing -> ""
+
+-- Solution from book realized to use `words` and `unwords` to
+-- simplify things:
+{-
+fullName :: Lens' User String
+fullName = lens getter setter
+  where
+    getter user = view firstName user <> " " <> view lastName user
+    setter user new =
+      let withFirstName = set firstName (head (words new)) user
+        in set lastName (unwords . tail . words $ new) withFirstName
+-}
+
 lensTests :: IO ()
 lensTests = do
   putStrLn $ show $ view numCrew purplePearl
@@ -134,4 +179,11 @@ lensTests = do
   putStrLn $ lensLawsShow' badBuilder builderTwoStr "three" "four"
   putStrLn $ lensLawsShow' tailBuilder builderTwoStr "three" "four"
   putStrLn $ lensLawsShow' builder builderTwoStr "three" "four"
+  -- Virtual lenses
+  let user1 = User "John" "Cena" "invisible@example.com"
+  putStrLn $ greetUser user1
+  putStrLn $ view fullName user1
+  let user2 = set fullName "Doctor of Thuganomics" user1
+  putStrLn $ view fullName user2
+
 
