@@ -44,3 +44,33 @@ just do nothing, but what about the getter? Since you know it needs
 a string I suppose you could
 just return an empty string right? This would compile but it still
 just seems wrong doesn’t it? In fact this would violate the lens laws.
+
+## Polymorphic Optics
+
+1. The type sig of the polymorphic lens which would allow changing a
+`Vorpal x` to a `Vorpal y`: `Lens (Vorpal x) (Vorpal y) x y`
+
+2. ```haskell
+   data Preferences a b = Preferences { _best :: a , _worst :: b }
+   ```
+3. ```haskell
+   data Result e = Result { _lineNumber :: Int, _result :: Either e String }
+
+   result :: Lens (Result a) (Result b) (Either a String) (Either b String)
+   ```
+
+In this case we need to supply an entire `Either a _` since we may or may not have a wrapped `a`.
+
+4. Yes
+
+```haskell
+silly :: Lens (a, b) (c, d) (a, b) (c, d)
+silly = lens id (\_ a -> a)
+```
+
+5. `data Predicate a = Predicate (a -> Bool)`
+
+```haskell
+predicate :: Lens (Predicate a) (Predicate b) (a -> Bool) (b -> Bool)
+predicate :: lens (unPredicate) (Predicate)
+```

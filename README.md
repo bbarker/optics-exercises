@@ -1,5 +1,7 @@
 # optics-exercises
 
+Short answers to exercises are found in [scratch.md](/scratch.md).
+
 
 # Notes
 
