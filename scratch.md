@@ -53,6 +53,7 @@ just seems wrong doesn’t it? In fact this would violate the lens laws.
 2. ```haskell
    data Preferences a b = Preferences { _best :: a , _worst :: b }
    ```
+
 3. ```haskell
    data Result e = Result { _lineNumber :: Int, _result :: Either e String }
 
@@ -74,3 +75,85 @@ silly = lens id (\_ a -> a)
 predicate :: Lens (Predicate a) (Predicate b) (a -> Bool) (b -> Bool)
 predicate :: lens (unPredicate) (Predicate)
 ```
+
+### Lens Composition
+
+1. `_2 . _1 . _2`
+
+2. `mysteryDomino :: Lens' Eight Two`
+
+3. ```haskell
+   Lens Platypus BabySloth Armadillo Hedgehog
+   Functor f => (Armadillo -> f Hedgehog) -> (Platypus -> f BabySloth)
+   ```
+
+4.  ```haskell
+    spuzorktrowmble :: Lens Chumble Spuzz Gazork Trowlg
+    gazorlglesnatchka :: Lens Gazork Trowlg Bandersnatch Yakka
+    zinkattumblezz :: Lens Zink Wattoom Chumble Spuzz
+    gruggazinkoom :: Lens Grug Pubbawup Zink Wattoom
+    banderyakoobog :: Lens Bandersnatch Yakka Foob Mog
+    boowockugwup :: Lens Boojum Jabberwock Grug Pubbawup
+    snajubjumwock :: Lens Snark JubJub Boojum Jabberwock
+    ````
+    The trick seems to be looking at *either* the input
+    type and focus for constructing the chain rather than
+    worrying about it all at once.
+
+    So:
+      ```
+        spuzorktrowmble : Chumble Gazork
+        gazorlglesnatchka : Gazork Bandersnatch
+
+        zinkattumblezz : Zink Chumble
+        gruggazinkoom : Grug Zink
+
+        banderyakoobog : Bandersnatch Foob
+
+        boowockugwup : Boojum Grug
+        snajubjumwock : Snark Boojum
+      ```
+
+      Gives:
+
+      ```
+      spuzorktrowmble . gazorlglesnatchka: Chumble Bandersnatch
+      gruggazinkoom . zinkattumblezz : Grug Chumble
+
+      ```
+
+      And then:
+
+      ```
+        gruggazinkoom . zinkattumblezz
+      . spuzorktrowmble . gazorlglesnatchka : Grug Bandersnatch
+
+      ```
+
+     And then:
+
+      ```
+        gruggazinkoom . zinkattumblezz
+      . spuzorktrowmble . gazorlglesnatchka
+      . banderyakoobog : Grug Foob
+
+        snajubjumwock . boowockugwup: Snark Grug
+
+      ```
+
+      And then:
+
+      ```
+        snajubjumwock . boowockugwup
+      . gruggazinkoom . zinkattumblezz
+      . spuzorktrowmble . gazorlglesnatchka
+      . banderyakoobog : Snark Foob
+
+      ```
+
+      So this tells us our actual lens function would have types from
+      `snajubjumwock` and `banderyakoobog`:
+
+      ```haskell
+      Lens Snark JubJub Foob Mog
+      ```
