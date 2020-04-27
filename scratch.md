@@ -157,3 +157,43 @@ predicate :: lens (unPredicate) (Predicate)
       ```haskell
       Lens Snark JubJub Foob Mog
       ```
+
+## Operators
+
+1.
+    * ```haskell
+       -- Untested:
+       duloc & name %~ (<> " a perfect place")
+         & gate . open ~. False
+         & army . knights %~ (+28)
+       -- Book answer:
+       duloc
+         & gate . open &&~ False
+         & army . knights *~ 3
+         & name <>~ ": a perfect place"
+       ```
+    * ```haskell
+       -- Untested:
+       duloc & name <>~ "instein"
+         & army . archers -~ 5
+         & army . knights +~ 12
+         & gate . oilTemp *~ 10
+       -- Book answer:
+       duloc
+         & gate . oilTemp ^~ 2
+         & army . archers -~ 5
+         & army . knights +~ 12
+         & name <>~ "instein"
+       ```
+    *  Note: Get old focus in addition to setting new one (addition: `<<+~ 15`)
+       ```haskell
+       -- Untested:
+       duloc & gate . oilTemp /~ 2
+         & name <<<>~ ": Home"
+         & ._2 name <>~ " of the talking Donkeys"
+       -- Book answer (looks like I found the simplified solution but was off on symbol names):
+       duloc
+         & name <<>~ ": Home"
+         & _2 . name <>~ " of the talking Donkeys"
+         & _2 . gate . oilTemp //~ 2
+       ```
