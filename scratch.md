@@ -197,3 +197,32 @@ predicate :: lens (unPredicate) (Predicate)
          & _2 . name <>~ " of the talking Donkeys"
          & _2 . gate . oilTemp //~ 2
        ```
+
+2.
+    * `(False, "opossums") `undefined` _1 ||~ True` => `(True, "opossums")`; so `undefined = &`
+    * 2 & id `undefined` 3 => `6`, so `undefined = *~`
+    * Starting at `((True, "Dudley"), 55.0)`
+      ```haskell
+      >>> import Data.Char (toUpper)
+      >>> ((True, "Dudley"), 55.0)
+      & _1 . _2 `undefined` " - the worst"
+      & _2 `undefined` 15
+      & _2 `undefined` 2
+      & _1 . _2 `undefined` map toUpper
+      & _1 . _1 `undefined` False
+      ((False,"DUDLEY - THE WORST"),20.0)
+      ```
+
+      My answer:
+      ```haskell
+      >>> import Data.Char (toUpper)
+      >>> ((True, "Dudley"), 55.0)
+      & _1 . _2 <>~ " - the worst"
+      & _2 -~ 15
+      & _2 //~ 2
+      & _1 . _2 %~ map toUpper
+      & _1 . _1 .~ False -- book used &&~
+      ((False,"DUDLEY - THE WORST"),20.0)
+      ```
+
+
