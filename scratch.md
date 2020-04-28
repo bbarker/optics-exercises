@@ -224,5 +224,12 @@ predicate :: lens (unPredicate) (Predicate)
       & _1 . _1 .~ False -- book used &&~
       ((False,"DUDLEY - THE WORST"),20.0)
       ```
+3. `view` (or `^.`)
+4. `%~ :: s -> Lens s t a b -> (a -> b) -> t`
+
+   Ooops, it is actually in the wrong order, it should be:
+  `%~ :: Lens s t a b -> (a -> b) -> s -> t`.
+   This should be easier to notice if we remember `&` has fixity 0
+   (lowest priority).
 
 
