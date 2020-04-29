@@ -233,3 +233,100 @@ predicate :: lens (unPredicate) (Predicate)
    (lowest priority).
 
 
+## Folds
+
+### Introduction to Folds
+
+1.
+    ```haskell
+    beastSizes :: [(Int, String)]
+    beastSizes = [(3, "Sirens"), (882, "Kraken"), (92, "Ogopogo")]
+    >>> beastSizes ^.. folded
+    -- ... id? i.e. returns the same list
+    -- Answer: Correct
+    >>> beastSizes ^.. folded . folded
+    -- ... ?  ["Sirens", "Kraken", "Ogopogo"]
+    -- Answer: Correct
+    >>> beastSizes ^.. folded . folded . folded
+    -- ... ? "SirensKrakenOgopogo"
+    -- Answer: Correct
+    >>> beastSizes ^.. folded . _2
+    -- ... ?  ["Sirens", "Kraken", "Ogopogo"]
+    -- Answer: Correct
+    >>> toListOf (folded . folded) [[1, 2, 3], [4, 5, 6]]
+    -- [1, 2, 3, 4, 5, 6]
+    -- Answer: Correct
+    >>> toListOf
+      (folded . folded)
+      (M.fromList [("Jack", "Captain"), ("Will", "First Mate")])
+    -- "Captain First Mate"
+    -- Answer  ... almost : "CaptainFirst Mate"
+    -- Operator syntax:
+    (M.fromList [("Jack", "Captain"), ("Will", "First Mate")]) ^.. folded . folded
+
+    >>> ("Hello", "It's me") ^.. both . folded
+    -- ? "HelloIt's me"
+    -- Answer: Correct
+    >>> ("Why", "So", "Serious?") ^.. each
+    -- ["Why", "So", "Serious?"]
+    -- Answer: Correct
+    :set +m
+    let quotes :: [(T.Text, T.Text, T.Text)];
+        quotes = [("Why", "So", "Serious?"), ("This", "is", "SPARTA")]
+    >>> quotes ^.. each . each . each
+    -- ? "WhySoSerious?ThisisSPARTA"
+    -- Answer: Correct
+    ```
+2.
+    ```haskell
+    folded and _1
+    >>> toListOf (folded . _1) [(1, 'a'), (2, 'b'), (3, 'c')]
+    [1, 2, 3]
+    -- folded :: Fold [(Int, Char)] (Int, Char)
+    -- _1 :: Fold (Int, Char) Int
+    -- Answer: Correct
+
+    folded, _2, and toListOf
+    >>> toListOf (_2 . folded) (False, S.fromList ["one", "two", "three"])
+    ["one", "two", "three"]
+    -- folded :: Fold (Set String) String
+    -- _2 :: Fold (Bool, Set String) (Set String)
+    -- toListOf :: Fold (Bool, Set String) String -> (Bool, Set String) -> [String]
+    -- Answer: correct, though no answer for toListOf shown
+
+    folded and folded and toListOf
+    >>> toListOf
+    (folded . folded)
+    (M.fromList [("Jack", "Captain"), ("Will", "First Mate")])
+    "CaptainFirst Mate"
+
+    -- folded :: Fold (Map String String) String
+    -- folded :: Fold String Char
+    -- toListOf :: Fold (Map String String) [Char] -> Map String String -> [Char]
+    -- Oops, first [Char] should be [Char]:
+    -- toListOf :: Fold (Map String String) Char -> Map String String -> [Char]
+    -- Note: String == [Char]
+    ```
+
+3.
+    ```haskell
+    >>> [1, 2, 3] ^.. _
+    [1, 2, 3]
+    -- folded
+    >>> ("Light", "Dark") ^.. _
+    ["Light"]
+    -- _1
+    >>> [("Light", "Dark"), ("Happy", "Sad")] ^.. _
+    ["Light","Dark","Happy","Sad"]
+    -- folded . each
+    -- Book answer: `folded . both`, both answers work though
+    >>> [("Light", "Dark"), ("Happy", "Sad")] ^.. _
+    ["Light","Happy"]
+    -- folded . _1
+    >>> [("Light", "Dark"), ("Happy", "Sad")] ^.. _
+    "DarkSad"
+    -- folded . _2 . folded
+    >>> ("Bond", "James", "Bond") ^.. _
+    ["Bond","James","Bond"]
+    -- each
+    ```

@@ -11,6 +11,12 @@ Project generated with:
 stack --nix --resolver lts-14.27 new optics-exercises
 ```
 
+## REPL usage
+
+Some common options:
+
+- `stack --nix repl --ghci-options "-XOverloadedStrings -XTypeSynonymInstances -XFlexibleInstances"`
+
 ## Diagrams
 
 ### [Lens](https://twitter.com/impurepics/status/1242912915293904904)
