@@ -26,3 +26,9 @@ Some common options:
 ### [Iso](https://twitter.com/impurepics/status/1246183035587964930?s=19)
 
 ![Iso](/images/IsoOptics.jpg)
+
+## Videos
+
+- [Lenses: compositional data access and manipulation](https://skillsmatter.com/skillscasts/4251-lenses-compositional-data-access-and-manipulation) (Simon Peyton Jones)
+- Writing a profunctor optics library in Haskell from scratch (Chris Penner)
+  - [(pt. 1)](https://www.youtube.com/watch?v=i0yMe7UQ9a0)

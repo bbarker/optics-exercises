@@ -330,3 +330,104 @@ predicate :: lens (unPredicate) (Predicate)
     ["Bond","James","Bond"]
     -- each
     ```
+
+### Custom Folds
+
+1. Fill in each blank with either `to`, `folded`, or `folding`.
+    ```haskell
+    >>> ["Yer", "a", "wizard", "Harry"] ^.. folded . _
+    "YerawizardHarry"
+    -- folded
+    >>> [[1, 2, 3], [4, 5, 6]] ^.. folded . _ (take 2)
+    [1, 2, 4, 5]
+    -- ?
+    -- Answer: folding: folding (take 2) transforms each list into
+    --   a shorter list, which at first seems like what `to` is
+    --   doing below. But remember, `folding` is treating what it
+    --   returns as a Fold, so they will be "unwrapped" and folded over.
+    >>> [[1, 2, 3], [4, 5, 6]] ^.. folded . _ (take 2)
+    [[1,2], [4,5]]
+    -- to
+    >>> ["bob", "otto", "hannah"] ^.. folded . _ reverse
+    ["bob", "otto", "hannah"]
+    -- to
+    >>> ("abc", "def") ^.. _ (\(a, b) -> [a, b]). _ reverse . _
+    "cbafed"
+    -- folding, to, folded:
+    -- ("abc", "def") ^.. folding  (\(a, b) -> [a, b]) . to reverse . folded
+    -- This seems a bit over the top as you could also do:
+    -- ("abc", "def") ^.. each . to reverse . folded
+    ```
+2. Fill in the blank for each of the following expressions with a path of folds which results in the specified answer. Avoid partial functions and `fmap`.
+    ```haskell
+    >>> [1..5] ^.. _
+    [100,200,300,400,500]
+    -- [1..5] ^.. folded . to (*100)
+    >>> (1, 2) ^.. _
+    [1, 2]
+    -- (1, 2) ^.. both
+    -- Alternative from book: (1, 2) ^.. folding (\(a, b) -> [a, b])
+    >>> [(1, "one"), (2, "two")] ^.. _
+    ["one", "two"]
+    -- [(1, "one"), (2, "two")] ^.. folded . to snd
+    >>> (Just 1, Just 2, Just 3) ^.. _
+    [1, 2, 3]
+    -- (Just 1, Just 2, Just 3) ^.. each & catMaybes
+    -- Book solution (more idiomatic optics though longer):
+    -- (Just 1, Just 2, Just 3)
+    --  ^.. folding (\(a, b, c) -> [a, b, c]) . folded
+    >>> [Left 1, Right 2, Left 3] ^.. _
+    [2]
+    -- [Left 1, Right 2, Left 3] ^.. folded . folded
+    >>> [([1, 2], [3, 4]), ([5, 6], [7, 8])] ^.. _
+    [1, 2, 3, 4, 5, 6, 7, 8]
+    -- [([1, 2], [3, 4]), ([5, 6], [7, 8])] ^.. folded . each . folded
+    -- Book: ^.. folded . folding (\(a, b) -> a <> b)
+    >>> [1, 2, 3, 4] ^.. _
+    [Left 1, Right 2, Left 3, Right 4]
+    -- ^.. folded . to (\x -> if even x then Right x else Left x)
+    >>> [(1, (2, 3)), (4, (5, 6))] ^.. _
+    [1, 2, 3, 4, 5, 6]
+    -- I doubt this is the desired solution but:
+    -- ^.. folded . to (\x -> fst x : (biList $ snd x)) . folded
+    -- As usual, book solution is to use `folding` in the hairy cases:
+    -- ^.. folded . folding (\(a, (b, c)) -> [a, b, c])
+    >>> [(Just 1, Left "one"), (Nothing, Right 2)] ^.. _
+    [1, 2]
+    -- While I could think of a way to get this, nothing easy or optical is coming to mind
+    -- Of course, the answer involves `folding`, but, it also uses nested
+    -- actions/folds, indicating it is indeed rather tricky to do with
+    -- optics:
+    -- ^.. folded . folding (\(a, b) -> a ^.. folded <> b ^.. folded)
+    >>> [(1, "one"), (2, "two")] ^.. _
+    [Left 1, Right "one", Left 2, Right "two"]
+    -- [(1, "one"), (2, "two")] ^.. folded . to (\x -> [Left $ fst x, Right $ snd x]) . folded
+    -- Book uses folding with better pattern matching:
+    -- ^.. folded . folding (\(a, b) -> [Left a, Right b])
+    >>> S.fromList ["apricots", "apples"] ^.. _
+    "selppastocirpa"
+    -- Not sure what `S` is for the module
+    -- ^.. folded . folded . reverse
+    -- But `["apricots", "apples"] ^.. folded . folded ` gives a type error
+    -- Aha, this  issue was likely a result of using `-XOverloadedStrings`
+    -- However, I missed using `&`:
+    -- ^.. folded . folded & reverse
+    -- Book solution is to again use folding:
+    -- ^.. folded . folding reverse "selppastocirpa"
+    ```
+3. *(Bonus)*
+
+    ```haskell
+    >>> [(12, 45, 66), (91, 123, 87)] ^.. _
+    "54321"
+    -- ^.. folded . folding (\(a,b,c) -> [b]) . to show . folding reverse
+    -- Book reminds me to use `_2` even on n-tuples:
+    --  ^.. folded . _2 . to show . folding reverse
+    >>> [(1, "a"), (2, "b"), (3, "c"), (4, "d")] ^.. _
+    ["b", "d"]
+    -- ^.. folding (filter (even . fst)) . folded
+    -- Cool, was shorter than the book answer:
+    -- ^.. folded . folding (\(a, b) -> if (even a) then return b else [])
+    -- Sometimes it still makes sense to do non-optics stuff earlier
+    -- (like filter)
+    ```
