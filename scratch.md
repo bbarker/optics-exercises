@@ -431,3 +431,32 @@ predicate :: lens (unPredicate) (Predicate)
     -- Sometimes it still makes sense to do non-optics stuff earlier
     -- (like filter)
     ```
+
+### Fold Actions
+
+1.
+    ```haskell
+    >>> _ folded []
+    False
+    -- anyOf folded [] -- wrong, look at the type signature!
+    -- has folded []
+    >>> _ both ("Yo", "Adrian!")
+    "YoAdrian!"
+    -- sumOf? Nope, need a Num a
+    -- foldOf both ("Yo", "Adrian!")
+    >>> _ each "phone" ("E.T.", "phone", "home")
+    True
+    -- elemOf each "phone" ("E.T.", "phone", "home")
+    >>> _ folded [5, 7, 2, 3, 13, 17, 11]
+    Just 2
+    -- minimumOf folded [5, 7, 2, 3, 13, 17, 11]
+    >>> _ folded [5, 7, 2, 3, 13, 17, 11]
+    Just 11
+    -- lastOf folded [5, 7, 2, 3, 13, 17, 11]
+    >>> _ folded ((> 9) . length) ["Bulbasaur", "Charmander", "Squirtle"]
+    -- anyOf folded ((> 9) . length) ["Bulbasaur", "Charmander", "Squirtle"]
+    >>> _ folded even [11, 22, 3, 5, 6]
+    Just 22
+    -- findOf folded even [11, 22, 3, 5, 6]
+    ```
+2. 
