@@ -459,4 +459,51 @@ predicate :: lens (unPredicate) (Predicate)
     Just 22
     -- findOf folded even [11, 22, 3, 5, 6]
     ```
-2. 
+2. ```haskell
+   let input = ["umbrella", "olives", "racecar", "hammer"]
+   findOf folded (== "racecar") input
+   -- Just "racecar"
+   -- Oh but this is cheating, we nee dto find using the criteria that it is a palindome.  But easy enough:
+   findOf folded (\x -> x == reverse x) input
+
+   let input = (2, 4, 6)
+   allOf each even input
+   -- True
+
+   let input = (1, 2)
+   sumOf each input
+   -- 3
+   -- book's solution more general but longer:
+   -- getSum $ foldMapOf both Sum (1, 2)
+
+3. (Bonus)
+
+   ```haskell
+   let input = "Do or do not, there is no try."
+   let countVowels = (\s -> length $ filter (\c -> any (\v -> v == c) "aeiou") s)
+   maximumByOf folded (comparing countVowels) (words input)
+   -- Just "there"
+   -- Book solution a bit shorter in total due to use of `elem`
+   maximumByOf (folding words) (compare `on` (length . filter (`elem` "aeiouy"))) input
+   -- A variation merging the two approaches:
+   maximumByOf folded (comparing (length . filter (`elem` "aeiouy"))) (words input)
+
+   let input = ["a", "b", "c"]
+   foldMapOf folded id input & reverse -- Not just an optic but ...
+   -- "cba"
+
+   let input = [(12, 45, 66), (91, 123, 87)]
+   -- no: foldMapOf folded . to (toListOf ((to snd) . each)) input
+   -- this at least folds over everything:
+   toListOf (folded . each) input
+   -- closer!:
+   toListOf (folded . _2) input
+   -- [45,123]
+   -- nope: toListOf (folded . reverse . show . _2) input
+   -- nope: toListOf (folded . show . _2) input
+   -- back on the right track:
+   toListOf ((folded . _2) . (to show)) input
+   -- the tricky part here was remembering to stick `folded` at the end, as we
+   -- want to focus on each character *after* the other transformations
+   toListOf ((folded . _2) . (to $ reverse . show) . folded) input
+   ```
