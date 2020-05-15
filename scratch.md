@@ -491,6 +491,13 @@ predicate :: lens (unPredicate) (Predicate)
    let input = ["a", "b", "c"]
    foldMapOf folded id input & reverse -- Not just an optic but ...
    -- "cba"
+   -- book answers:
+   >>> foldByOf folded (flip (++)) "" ["a", "b", "c"]
+   "cba"
+   -- The following also works
+   >>> import Data.Monoid (Dual(..))
+   >>> getDual $ foldMapOf folded Dual ["a", "b", "c"]
+   "cba"
 
    let input = [(12, 45, 66), (91, 123, 87)]
    -- no: foldMapOf folded . to (toListOf ((to snd) . each)) input
@@ -506,4 +513,13 @@ predicate :: lens (unPredicate) (Predicate)
    -- the tricky part here was remembering to stick `folded` at the end, as we
    -- want to focus on each character *after* the other transformations
    toListOf ((folded . _2) . (to $ reverse . show) . folded) input
+   -- The book cleaned this up slightly (more calls to `to` but clearer):
+   toListOf (folded ._2 . to show . to reverse . folded) input
+
+   let input = [(1, "a"), (2, "b"), (3, "c"), (4, "d")]
+   -- nope: toListOf (folded . even `on` fst . _2) input
+   -- I was reaching for filtered but haven't  learned it yet, book
+   -- answer uses folding:
+   input ^.. folded . folding (\(a, b) -> if (even a) then pure b else [])
+
    ```
