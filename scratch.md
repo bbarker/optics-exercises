@@ -523,3 +523,57 @@ predicate :: lens (unPredicate) (Predicate)
    input ^.. folded . folding (\(a, b) -> if (even a) then pure b else [])
 
    ```
+
+### Higher Order Folds
+
+1.
+   ```haskell
+    >>> "Here's looking at you, kid" ^.. _ 7 folded
+    "looking at you, kid"
+    -- "Here's looking at you, kid" ^.. dropping 7 folded
+
+    >>> ["My Precious", "Hakuna Matata", "No problemo"] ^.. folded . taking 1 _
+    ["My","Hakuna","No"]
+    -- ["My Precious", "Hakuna Matata", "No problemo"] ^..
+    --  folded . taking 1 (to words . folded)
+    -- Note: use `to words . folded` instead of just `to words` because `to words` only
+    -- focuses at the list level, but we need to focus into each generated list
+    -- Book solution better using `worded`:
+    -- ^.. folded . taking 1 worded
+
+    >>> ["My Precious", "Hakuna Matata", "No problemo"] ^.. _
+    ["My"]
+    -- ["My Precious", "Hakuna Matata", "No problemo"] ^..
+    --  taking 1 (folded . taking 1 (to words . folded))
+
+    >>> ["My Precious", "Hakuna Matata", "No problemo"] ^.. folded . _
+    "MyHakunaNo"
+    -- ["My Precious", "Hakuna Matata", "No problemo"] ^.. folded . taking 1 (to words . folded) . folded
+
+    >>> _ (10, 50, 100)
+    60
+    -- sumOf (takingWhile (<= 50) each) (10, 50, 100)
+    -- Book solution:
+    -- sumOf (taking 2 each) (10, 50, 100)
+
+    >>> ("stressed", "guns", "evil") ^.. _ each
+    ["evil","guns","stressed"]
+    -- ("stressed", "guns", "evil") ^.. backwards each
+
+
+    >>> ("stressed", "guns", "evil") ^.. backwards each . to _
+    ["live","snug","desserts"]
+    -- ("stressed", "guns", "evil") ^.. backwards each . to reverse
+
+    >>> import Data.Char (isAlpha)
+    >>> "blink182 k9 blazeit420" ^.. _
+    >>> "1829420"
+    --  "blink182 k9 blazeit420" ^.. to words . folded . to reverse . takingWhile (not . isAlpha) folded
+    -- This gets all the numbers together, but need to reverse them first while
+    -- each sublist is still preserved:
+    -- "blink182 k9 blazeit420" ^.. to words . folded . to reverse . takingWhile (not . isAlpha) folded
+    -- The trick is to use backwards in the right place:
+    --"blink182 k9 blazeit420" ^.. to words . folded . to reverse . backwards (takingWhile (not . isAlpha) folded)
+    -- Book solution way better (key is to use drop not take):
+    -- ^.. worded . droppingWhile isAlpha folded
+    ```
