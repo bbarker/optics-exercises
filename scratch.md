@@ -577,3 +577,18 @@ predicate :: lens (unPredicate) (Predicate)
     -- Book solution way better (key is to use drop not take):
     -- ^.. worded . droppingWhile isAlpha folded
     ```
+2.
+   ```haskell
+   sample :: [Int]
+   sample = [-10, -5, 4, 3, 8, 6, -2, 3, -5, -7]
+   sample ^.. takingWhile (< 0) folded & length
+   -- ^ # measurements before thaw
+
+   maximumOf (taking 4 folded) sample
+   -- ^ # warmest in first 4 days
+
+   sample ^? dropping 1 (droppingWhile (/= 4) folded)
+   -- ^ get temp on day after a given temp
+
+
+   ```
