@@ -15,7 +15,7 @@ stack --nix --resolver lts-14.27 new optics-exercises
 
 Some common options:
 
-- `stack --nix repl --ghci-options "-XOverloadedStrings -XTypeSynonymInstances -XFlexibleInstances"`
+- `stack --nix repl --ghci-options "-XOverloadedStrings -XTypeSynonymInstances -XFlexibleInstances -XRankNTypes"`
 
 ## Diagrams
 

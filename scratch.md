@@ -583,6 +583,8 @@ predicate :: lens (unPredicate) (Predicate)
    sample = [-10, -5, 4, 3, 8, 6, -2, 3, -5, -7]
    sample ^.. takingWhile (< 0) folded & length
    -- ^ # measurements before thaw
+   -- Book uses lengthOf fold action:
+   lengthOf (takingWhile (<= 0) folded) sample
 
    maximumOf (taking 4 folded) sample
    -- ^ # warmest in first 4 days
@@ -590,5 +592,17 @@ predicate :: lens (unPredicate) (Predicate)
    sample ^? dropping 1 (droppingWhile (/= 4) folded)
    -- ^ get temp on day after a given temp
 
+   foldByOf folded (\t s -> if t < 0.0 then (s + 1) else 0) 0 sample
+   -- ^ max # consecutive days below freezing (didn't use HOF)
+   -- I feel the book solution, while it does use HOFs, is not
+   -- as clear, and maybe not as correct in general:
+   lengthOf (takingWhile (<0) (backwards folded)) sample
+
+   sample ^.. takingWhile (> 0) (droppingWhile (< 0) folded)
+   -- ^ collected the first stretch of positive temps
+
+   let trimmingWhile :: (a -> Bool) -> Fold s a -> Fold s a;
+       trimmingWhile pred fsa = takingWhile pred (droppingWhile (not . pred) fsa)
+   sample ^.. trimmingWhile (> 0) folded
 
    ```
