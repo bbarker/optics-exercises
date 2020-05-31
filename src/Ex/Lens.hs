@@ -160,6 +160,7 @@ fullName = lens getter setter
 
 lensTests :: IO ()
 lensTests = do
+  putStrLn "\n\n  -- Lens Tests --\n"
   putStrLn $ show $ view numCrew purplePearl
   let newPearl = set numCrew 41 purplePearl
   putStrLn $ show newPearl
