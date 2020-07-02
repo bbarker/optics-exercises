@@ -606,3 +606,26 @@ predicate :: lens (unPredicate) (Predicate)
    sample ^.. trimmingWhile (> 0) folded
 
    ```
+
+
+# Temporary Note: Skiping ahead to prisms
+
+## Prisms
+
+### Introduction to Prisms
+
+ 1. Which prisms will be generated from the following data declaration? Give their names and types.
+
+  ```haskell
+  data ContactInfo =
+      Email String
+    | Telephone Int
+    | Address String String String
+  makePrisms ''ContactInfo
+  ```
+  Answer:
+  ```haskell
+  _Email :: Prism' ContactInfo String
+  _Telephone :: Prsim' ContactInfo Int
+  _Address :: Prsim' ContactInfo (String, String, String)
+  ```
